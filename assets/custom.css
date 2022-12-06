@@ -1,0 +1,26 @@
+.auth-wrapper .auth-box.on-sidebar{
+  position: fixed;
+  background-image: url(/assets/internal/bg-dark.jpg);
+}
+
+.page-wrapper {
+  background-image: url(/assets/images/bg0.jpg);
+  background-size: cover;
+}
+
+#loginform .logo img {
+  max-width: 220px;
+}
+
+hr.white-line{
+  border-top: 1px solid white;
+}
+
+#content {
+  padding-top: 125px;
+}
+
+input[type="checkbox"].check-large{
+  height: 1.5em;
+}
+

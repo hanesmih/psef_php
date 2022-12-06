@@ -1,0 +1,376 @@
+<script>
+  function edit_data_rs(id, no_permohonan) {
+    $.ajax({
+      url: url_api_x + "PermohonanRumahSakit(" + id + ")",
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (data, textStatus, xhr) {
+        edit_rs(data, no_permohonan, id)
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function edit_rs(data, no_permohonan, permohonanId) {
+    let source = $("#edit-data-rs").html();
+    let template = Handlebars.compile(source);
+
+    no_permohonan = emptyStringIfUndefined(no_permohonan);
+    data.permohonanId = permohonanId;
+    data.no_permohonan = no_permohonan;
+
+    $.each(data.value, function (i, v) {
+      data.value[i].no_permohonan = no_permohonan;
+    });
+
+    $('#load-data').html(template(data));
+    $('#zero_config_rs').DataTable({
+      "scrollY": '100vh',
+      "scrollX": true,
+    });
+
+    $('#page-title-rs').html('Data Rumah Sakit Nomor Permohonan (' + no_permohonan + ')')
+    $('#page-title').html('Rumah Sakit')
+    $('#refresh-page').html(`<button onclick="edit_data_rs('${permohonanId}','${no_permohonan}')" type="button" class="btn waves-effect waves-light btn-rounded btn-primary"><i class="fas fa-redo"></i> Segarkan Halaman</button>`)
+
+    $('#new-breadcrumb').remove()
+    $("#list-breadcrumb").append(`<li class="breadcrumb-item" id="new-breadcrumb"><a href="javascript:void(0)">Rumah Sakit</a></li>`)
+  }
+
+  function edit_data_rs_permohonan(id, id_permohonan, no_permohonan) {
+    $.ajax({
+      url: url_api_x + "PermohonanRumahSakit(" + id_permohonan + ")",
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (data, textStatus, xhr) {
+        let data_rs = [];
+        $.each(data.value, function (i, v) {
+          if (v.id == id) {
+            data_rs = v
+          }
+        });
+        edit_rs_permohonan(data_rs, no_permohonan)
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function edit_rs_permohonan(data, no_permohonan) {
+    let source = $("#edit-data-rs-permohonan").html();
+    let template = Handlebars.compile(source);
+    data.no_permohonan = no_permohonan
+
+    $('#load-data').html(template(data));
+
+    $.ajax({
+      url: url_api + 'Provinsi',
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (datax, textStatus, xhr) {
+        $.each(datax.value, function (i, v) {
+          $('select[name="provinsiId"]').append("<option value='" + v.id + "'>" + v.name + "</option>")
+        });
+        $('#provinsiId').select2()
+        $("#provinsiId option").removeAttr('selected');
+        $('#provinsiId').val(data.provinsiId).trigger('change');
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function add_data_rs(id, no_permohonan) {
+    let source = $("#add-data-rs-permohonan").html();
+    let template = Handlebars.compile(source);
+    let data = []
+    data.no_permohonan = no_permohonan
+    data.permohonanId = id
+
+    $('#load-data').html(template(data));
+
+    $.ajax({
+      url: url_api + 'Provinsi',
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (datax, textStatus, xhr) {
+        $.each(datax.value, function (i, v) {
+          $('select[name="provinsiId"]').append("<option value='" + v.id + "'>" + v.name + "</option>")
+        });
+        $('#provinsiId').select2()
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function data_save_rs(e) {
+    e.preventDefault();
+    var data = $('#data-add-rs').serializeFormJSON();
+    let no_permohonan = $('#no_permohonan').val()
+    data.permohonanId = parseInt(data.permohonanId)
+    let add_rs = {};
+    var add_detail_rs = [];
+    add_detail_rs.push(data)
+    add_rs.rumahSakit = add_detail_rs
+    add_rs.permohonanId = data.permohonanId
+    $.ajax({
+      url: url_api_x + 'PermohonanRumahSakit',
+      type: 'POST',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      data: JSON.stringify(add_rs),
+      contentType: 'application/json',
+      success: function (datax, textStatus, xhr) {
+        if (xhr.status == '204' || xhr.status == '201') {
+          edit_data_rs('' + data.permohonanId + '', '' + no_permohonan + '');
+          toastr.success("Tambah Rumah Sakit", 'Berhasil!');
+        } else {
+          toastr.error("Tambah Rumah Sakit", 'Gagal!');
+        }
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function update_data_rs(e) {
+    e.preventDefault();
+    var data = $('#data-update-rs').serializeFormJSON();
+    data.permohonanId = parseInt(data.permohonanId)
+    data.id = parseInt(data.id)
+    data.provinsiId = parseInt(data.provinsiId)
+    let id_rs = data.id
+    let no_permohonan = $('#no_permohonan').val()
+    let update_rs = {};
+    var update_detail_add = [];
+    update_detail_add.push(data)
+    update_rs.permohonanId = data.permohonanId
+    update_rs.rumahSakit = update_detail_add
+
+    $.ajax({
+      url: url_api_x + "PermohonanRumahSakit(" + id_rs + ")",
+      type: 'PUT',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      data: JSON.stringify(update_rs),
+      contentType: 'application/json',
+      success: function (datax, textStatus, xhr) {
+        if (xhr.status == '204' || xhr.status == '200') {
+          edit_data_rs('' + data.permohonanId + '', '' + no_permohonan + '');
+          toastr.success("Memperbarui Rumah Sakit", 'Berhasil!');
+        } else {
+          toastr.error("Memperbarui Rumah Sakit", 'Gagal!');
+        }
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function delete_data_rs_permohonan(id, id_permohonan) {
+    swal({
+      title: 'Hapus Rumah Sakit',
+      text: "Apakah Anda yakin menghapus rumah sakit ini ?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: "Batal",
+      confirmButtonText: 'Ya, Hapus !'
+    }).then((result) => {
+      if (result.value) {
+        let delete_rs = {};
+        let delete_detail_rs = [];
+        id = parseInt(id)
+        id_permohonan = parseInt(id_permohonan)
+        delete_detail_rs.push({
+          "id": id,
+          "permohonanId": id_permohonan
+        })
+        delete_rs.rumahSakit = delete_detail_rs
+        delete_rs.permohonanId = id_permohonan
+        $.ajax({
+          url: url_api_x + 'PermohonanRumahSakit(' + id + ')',
+          type: 'DELETE',
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+          },
+          data: JSON.stringify(delete_rs),
+          contentType: 'application/json',
+          success: function (data, textStatus, xhr) {
+            if (xhr.status == '204') {
+              swal(
+                'Berhasil!',
+                'Rumah Sakit dihapus',
+                'success'
+              )
+              $('#rowRs_' + id).remove()
+            } else {
+              swal({
+                type: 'error',
+                title: 'Oops...',
+                text: 'Gagal Delete Rumah Sakit'
+              })
+            }
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('Error in Operation');
+          }
+        });
+      }
+    })
+  }
+
+  function detail_add_rs(e) {
+    e.preventDefault();
+    var data = $('#add_detail_data_rs').serializeFormJSON();
+    let name_provinsi = $('#provinsiIdRs').select2('data');
+
+    if (data.editdetail == 'deletedetail') {
+
+      $('#rs_' + data.rowdetail).remove()
+
+      $.each(arr_detail_add_rs, function (indexa, valuea) {
+        if (data.rowdetail == valuea.iddetail) {
+          cc = indexa
+        }
+      });
+
+      Array.prototype.remove = function (indexcc) {
+        this.splice(indexcc, 1);
+      }
+
+      arr_detail_add_rs.remove(cc)
+
+      var s_detail = [];
+
+      arr_detail_add_rs.map((val, index) => {
+        s_detail.push(val)
+      })
+      arr_detail_add_rs = s_detail
+      arr_detail_add_rs_x.detail = s_detail;
+    }
+
+    arr_detail_add_rs.push({
+      "name": data.name,
+      "permohonanId": 0,
+      "apotekerName": data.apotekerName,
+      "straNumber": data.straNumber,
+      "sipaNumber": data.sipaNumber,
+      "address": data.address,
+      "provinsiId": data.provinsiId,
+      "iddetail": id_detail_add_rs
+    })
+
+    arr_detail_add_rs_x = {
+      detail: arr_detail_add_rs
+    }
+
+    $('#data_rs').val(JSON.stringify(arr_detail_add_rs_x))
+    $(".detail-item-rs").append(`
+      <tr id="rs_${id_detail_add_rs}">
+        <td>${data.name}</td>
+        <td>${data.apotekerName}</td>
+        <td>${data.straNumber}</td>
+        <td>${data.sipaNumber}</td>
+        <td>${data.address}</td>
+        <td>${name_provinsi[0].text}</td>
+        <td>
+          <button onclick="edit_detail_add_rs('${id_detail_add_rs}')" type="button" class="btn waves-effect waves-light btn-primary" iddadd="${id_detail_add_rs}">Ubah Rumah Sakit</button>
+          <button onclick="delete_detail_add_rs('${id_detail_add_rs}')" type="button" class="btn waves-effect waves-light btn-danger" iddadd="${id_detail_add_rs}">Hapus</button>
+        </td>
+      </tr>`);
+
+    id_detail_add_rs++;
+    close_modals()
+  }
+
+  function edit_detail_add_rs(id) {
+    $.each(arr_detail_add_rs, function (i, v) {
+      if (id == v.iddetail) {
+        $("#name_rs").val(v.name)
+        $("#apotekerName_rs").val(v.apotekerName)
+        $("#straNumber_rs").val(v.straNumber)
+        $("#sipaNumber_rs").val(v.sipaNumber)
+        $("#address_rs").val(v.address)
+        $('#provinsiIdRs').val(v.provinsiId).trigger("change");
+        $('#title-modal-rs').html('Ubah Rumah Sakit')
+        $("#editdetail_rs").val('deletedetail')
+        $("#rowdetail_rs").val(v.iddetail)
+      }
+    });
+    $('.btn-open-modal-rs').click()
+  }
+
+  function delete_detail_add_rs(id) {
+    swal({
+      title: 'Hapus Rumah Sakit',
+      text: "Apakah Anda yakin menghapus rumah sakit ini ?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: "Batal",
+      confirmButtonText: 'Ya, Hapus !'
+    }).then((result) => {
+      if (result.value) {
+        $.ajax({
+          success: function (data, textStatus, xhr) {
+            swal(
+              'Berhasil!',
+              'Rumah Sakit dihapus',
+              'success'
+            )
+
+            $('#rs_' + id).remove()
+
+            $.each(arr_detail_add_rs, function (indexa, valuea) {
+              if (id == valuea.iddetail) {
+                cc = indexa
+              }
+            });
+
+            Array.prototype.remove = function (indexcc) {
+              this.splice(indexcc, 1);
+            }
+
+            arr_detail_add_rs.remove(cc)
+
+            var s_detail = [];
+
+            arr_detail_add_rs.map((val, index) => {
+              s_detail.push(val)
+            })
+            arr_detail_add_rs = s_detail
+            arr_detail_add_rs_x.detail = s_detail;
+
+            $('#data_rs').val('')
+            $('#data_rs').val(JSON.stringify(arr_detail_add_rs_x))
+          }
+        });
+      }
+    })
+  }
+</script>

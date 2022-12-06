@@ -1,0 +1,18 @@
+{
+   "name": "psef-js",
+   "version": "1.0.0",
+   "private": true,
+   "dependencies": {
+      "handlebars": "^4.7.7",
+      "jquery": "^3.6.0",
+      "moment": "^2.29.1",
+      "sweetalert2": "^11.1.9"
+   },
+   "devDependencies": {
+      "@types/datatables.net": "^1.10.19",
+      "@types/jquery": "^3.5.5",
+      "@types/quill": "^2.0.9",
+      "@types/toastr": "^2.1.39",
+      "openapi-typescript": "^5.0.0"
+   }
+}

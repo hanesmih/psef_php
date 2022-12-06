@@ -1,0 +1,8 @@
+/backup
+/vendor
+/.vscode
+/node_modules
+pnpm-lock.yaml
+service-account-credentials.json
+appsettings.json
+*.log

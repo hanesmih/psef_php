@@ -1,0 +1,52 @@
+<!-- Modal Rumah Sakit-->
+<div id="myModalRs" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-body">
+        <h4 class="card-title" id="title-modal-rs">Tambah Rumah Sakit</h4>
+        <form class="m-t-30" id="add_detail_data_rs" onsubmit="detail_add_rs(event)">
+          <div class="form-group">
+            <label>Nama Rumah Sakit</label>
+            <input type="text" class="form-control" id="name_rs" name="name" placeholder="Masukan Nama Rumah Sakit"
+              required>
+          </div>
+          <div class="form-group">
+            <label>Nama Apoteker</label>
+            <input type="text" class="form-control" id="apotekerName_rs" name="apotekerName"
+              placeholder="Masukan Nama Apoteker" required>
+          </div>
+          <div class="form-group">
+            <label>No STRA</label>
+            <input type="text" class="form-control" id="straNumber_rs" name="straNumber" placeholder="Masukan No STRA"
+              required>
+          </div>
+          <div class="form-group">
+            <label>No SIPA</label>
+            <input type="text" class="form-control" id="sipaNumber_rs" name="sipaNumber" placeholder="Masukan No SIPA"
+              required>
+          </div>
+          <div class="form-group">
+            <label>Alamat</label>
+            <input type="text" class="form-control" id="address_rs" name="address" placeholder="Masukan Alamat"
+              required>
+          </div>
+          <div class="form-group">
+            <label>Provinsi</label>
+            <select name="provinsiId" id="provinsiIdRs" class="form-control" style="height: 36px;width: 100%;" required>
+              <option value="" selected disabled>-- Pilih Provinsi --</option>
+            </select>
+          </div>
+          <input type="hidden" name="editdetail" id="editdetail_rs">
+          <input type="hidden" name="rowdetail" id="rowdetail_rs">
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Kirim</button>
+            <button type="button" class="btn btn-default modal-close-conf">Batal</button>
+            <button type="button" class="btn btn-default modal-close" data-dismiss="modal"
+              style="display:none">Batal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

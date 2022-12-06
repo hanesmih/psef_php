@@ -1,0 +1,44 @@
+{
+    "data" : [
+        {
+            "nama_apotek": "Apotek Testing",
+            "nomor_izin_apotek": "Nomor Izin",
+            "lokasi_apotek": "Lokasi Apotek (Alamat Lengkap Apotek)",
+            "url_lokasi_apotek": "url GMAPS lokasi Apotek",
+            "nama_apoteker": "Apotek 1234567",
+            "nomor_sip_apoteker": "Nomor SIP",
+            "jadwal_praktik_apoteker":[
+                {
+                    "hari": "Senin-Jumat",
+                    "jam": "09.00 - 15.00"
+                },
+                {
+                    "hari": "Sabtu",
+                    "jam": "09.00 - 11.00"
+                }
+            ]
+        },
+        {
+            "nama_apotek": "Apotek 2",
+            "nomor_izin_apotek": "Nomor Izin 2",
+            "lokasi_apotek": "Lokasi Apotek (Alamat Lengkap Apotek) 2",
+            "url_lokasi_apotek": "url GMAPS lokasi Apotek 2",
+            "nama_apoteker": "Nama Apotek 2",
+            "nomor_sip_apoteker": "Nomor SIP 2",
+            "jadwal_praktik_apoteker":[
+                {
+                    "hari": "Senin-Rabu",
+                    "jam": "09.00 - 15.00"
+                },
+                {
+                    "hari": "Kamis-Jumat",
+                    "jam": "10.00 - 15.00"
+                },
+                {
+                    "hari": "Sabtu",
+                    "jam": "09.00 - 11.00"
+                }
+            ]
+        }
+    ]  
+}

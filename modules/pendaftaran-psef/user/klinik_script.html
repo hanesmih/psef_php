@@ -1,0 +1,377 @@
+<script>
+  function edit_data_klinik(id, no_permohonan) {
+    $.ajax({
+      url: url_api_x + "PermohonanKlinik(" + id + ")",
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (data, textStatus, xhr) {
+        edit_klinik(data, no_permohonan, id)
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function edit_klinik(data, no_permohonan, permohonanId) {
+    let source = $("#edit-data-klinik").html();
+    let template = Handlebars.compile(source);
+
+    no_permohonan = emptyStringIfUndefined(no_permohonan);
+    data.permohonanId = permohonanId;
+    data.no_permohonan = no_permohonan;
+
+    $.each(data.value, function (i, v) {
+      data.value[i].no_permohonan = no_permohonan;
+    });
+
+    $('#load-data').html(template(data));
+    $('#zero_config_klinik').DataTable({
+      "scrollY": '100vh',
+      "scrollX": true,
+    });
+
+    $('#page-title-klinik').html('Data Klinik Nomor Permohonan (' + no_permohonan + ')')
+    $('#page-title').html('Klinik')
+    $('#refresh-page').html(`<button onclick="edit_data_klinik('${permohonanId}','${no_permohonan}')" type="button" class="btn waves-effect waves-light btn-rounded btn-primary"><i class="fas fa-redo"></i> Segarkan Halaman</button>`)
+
+    $('#new-breadcrumb').remove()
+    $("#list-breadcrumb").append(`<li class="breadcrumb-item" id="new-breadcrumb"><a href="javascript:void(0)">Klinik</a></li>`)
+  }
+
+  function edit_data_klinik_permohonan(id, id_permohonan, no_permohonan) {
+    $.ajax({
+      url: url_api_x + "PermohonanKlinik(" + id_permohonan + ")",
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (data, textStatus, xhr) {
+        let data_klinik = [];
+        $.each(data.value, function (i, v) {
+          if (v.id == id) {
+            data_klinik = v
+          }
+        });
+        edit_klinik_permohonan(data_klinik, no_permohonan)
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function edit_klinik_permohonan(data, no_permohonan) {
+    let source = $("#edit-data-klinik-permohonan").html();
+    let template = Handlebars.compile(source);
+    data.no_permohonan = no_permohonan
+
+    $('#load-data').html(template(data));
+
+    $.ajax({
+      url: url_api + 'Provinsi',
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (datax, textStatus, xhr) {
+        $.each(datax.value, function (i, v) {
+          $('select[name="provinsiId"]').append("<option value='" + v.id + "'>" + v.name + "</option>")
+        });
+        $('#provinsiId').select2()
+        $("#provinsiId option").removeAttr('selected');
+        $('#provinsiId').val(data.provinsiId).trigger('change');
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function add_data_klinik(id, no_permohonan) {
+    let source = $("#add-data-klinik-permohonan").html();
+    let template = Handlebars.compile(source);
+    let data = []
+    data.no_permohonan = no_permohonan
+    data.permohonanId = id
+
+    $('#load-data').html(template(data));
+
+    $.ajax({
+      url: url_api + 'Provinsi',
+      type: 'GET',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      dataType: 'json',
+      success: function (datax, textStatus, xhr) {
+        $.each(datax.value, function (i, v) {
+          $('select[name="provinsiId"]').append("<option value='" + v.id + "'>" + v.name + "</option>")
+        });
+        $('#provinsiId').select2()
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function data_save_klinik(e) {
+    e.preventDefault();
+    var data = $('#data-add-klinik').serializeFormJSON();
+    let no_permohonan = $('#no_permohonan').val()
+    data.permohonanId = parseInt(data.permohonanId)
+    let add_klinik = {};
+    var add_detail_klinik = [];
+    add_detail_klinik.push(data)
+    add_klinik.klinik = add_detail_klinik
+    add_klinik.permohonanId = data.permohonanId
+    $.ajax({
+      url: url_api_x + 'PermohonanKlinik',
+      type: 'POST',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      data: JSON.stringify(add_klinik),
+      contentType: 'application/json',
+      success: function (datax, textStatus, xhr) {
+        if (xhr.status == '204' || xhr.status == '201') {
+          edit_data_klinik('' + data.permohonanId + '', '' + no_permohonan + '');
+          toastr.success("Tambah Klinik", 'Berhasil!');
+        } else {
+          toastr.error("Tambah Klinik", 'Gagal!');
+        }
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+  }
+
+  function update_data_klinik(e) {
+    e.preventDefault();
+    var data = $('#data-update-klinik').serializeFormJSON();
+    data.permohonanId = parseInt(data.permohonanId)
+    data.id = parseInt(data.id)
+    data.provinsiId = parseInt(data.provinsiId)
+    let id_klinik = data.id
+    let no_permohonan = $('#no_permohonan').val()
+    let update_klinik = {};
+    var update_detail_add = [];
+    update_detail_add.push(data)
+    update_klinik.permohonanId = data.permohonanId
+    update_klinik.klinik = update_detail_add
+
+    $.ajax({
+      url: url_api_x + "PermohonanKlinik(" + id_klinik + ")",
+      type: 'PUT',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+      },
+      data: JSON.stringify(update_klinik),
+      contentType: 'application/json',
+      success: function (datax, textStatus, xhr) {
+        if (xhr.status == '204' || xhr.status == '200') {
+          edit_data_klinik('' + data.permohonanId + '', '' + no_permohonan + '');
+          toastr.success("Memperbarui Klinik", 'Berhasil!');
+        } else {
+          toastr.error("Memperbarui Klinik", 'Gagal!');
+        }
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Error in Operation');
+      }
+    });
+
+  }
+
+  function delete_data_klinik_permohonan(id, id_permohonan) {
+    swal({
+      title: 'Hapus Klinik',
+      text: "Apakah Anda yakin menghapus klinik ini ?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: "Batal",
+      confirmButtonText: 'Ya, Hapus !'
+    }).then((result) => {
+      if (result.value) {
+        let delete_klinik = {};
+        let delete_detail_klinik = [];
+        id = parseInt(id)
+        id_permohonan = parseInt(id_permohonan)
+        delete_detail_klinik.push({
+          "id": id,
+          "permohonanId": id_permohonan
+        })
+        delete_klinik.klinik = delete_detail_klinik
+        delete_klinik.permohonanId = id_permohonan
+        $.ajax({
+          url: url_api_x + 'PermohonanKlinik(' + id + ')',
+          type: 'DELETE',
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken + '');
+          },
+          data: JSON.stringify(delete_klinik),
+          contentType: 'application/json',
+          success: function (data, textStatus, xhr) {
+            if (xhr.status == '204') {
+              swal(
+                'Berhasil!',
+                'Klinik dihapus',
+                'success'
+              )
+              $('#rowKlinik_' + id).remove()
+            } else {
+              swal({
+                type: 'error',
+                title: 'Oops...',
+                text: 'Gagal Delete Klinik'
+              })
+            }
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('Error in Operation');
+          }
+        });
+      }
+    })
+  }
+
+  function detail_add_klinik(e) {
+    e.preventDefault();
+    var data = $('#add_detail_data_klinik').serializeFormJSON();
+    let name_provinsi = $('#provinsiIdKlinik').select2('data');
+
+    if (data.editdetail == 'deletedetail') {
+      $('#klinik_' + data.rowdetail).remove()
+
+      $.each(arr_detail_add_klinik, function (indexa, valuea) {
+        if (data.rowdetail == valuea.iddetail) {
+          cc = indexa
+        }
+      });
+
+      Array.prototype.remove = function (indexcc) {
+        this.splice(indexcc, 1);
+      }
+
+      arr_detail_add_klinik.remove(cc)
+
+      var s_detail = [];
+
+      arr_detail_add_klinik.map((val, index) => {
+        s_detail.push(val)
+      });
+
+      arr_detail_add_klinik = s_detail
+      arr_detail_add_klinik_x.detail = s_detail;
+    }
+
+    arr_detail_add_klinik.push({
+      "name": data.name,
+      "permohonanId": 0,
+      "apotekerName": data.apotekerName,
+      "straNumber": data.straNumber,
+      "sipaNumber": data.sipaNumber,
+      "address": data.address,
+      "provinsiId": data.provinsiId,
+      "iddetail": id_detail_add_klinik
+    })
+
+    arr_detail_add_klinik_x = {
+      detail: arr_detail_add_klinik
+    }
+
+    $('#data_klinik').val(JSON.stringify(arr_detail_add_klinik_x))
+    $(".detail-item-klinik").append(`
+      <tr id="klinik_${id_detail_add_klinik}">
+        <td>${data.name}</td>
+        <td>${data.apotekerName}</td>
+        <td>${data.straNumber}</td>
+        <td>${data.sipaNumber}</td>
+        <td>${data.address}</td>
+        <td>${name_provinsi[0].text}</td>
+        <td>
+          <button onclick="edit_detail_add_klinik('${id_detail_add_klinik}')" type="button" class="btn waves-effect waves-light btn-primary" iddadd="${id_detail_add_klinik}">Ubah Klinik</button>
+          <button onclick="delete_detail_add_klinik('${id_detail_add_klinik}')" type="button" class="btn waves-effect waves-light btn-danger" iddadd="${id_detail_add_klinik}">Hapus</button>
+        </td>
+      </tr>`);
+
+    id_detail_add_klinik++;
+    close_modals()
+  }
+
+  function edit_detail_add_klinik(id) {
+    $.each(arr_detail_add_klinik, function (i, v) {
+      if (id == v.iddetail) {
+        $("#name_klinik").val(v.name)
+        $("#apotekerName_klinik").val(v.apotekerName)
+        $("#straNumber_klinik").val(v.straNumber)
+        $("#sipaNumber_klinik").val(v.sipaNumber)
+        $("#address_klinik").val(v.address)
+        $('#provinsiIdKlinik').val(v.provinsiId).trigger("change");
+        $('#title-modal-klinik').html('Ubah Klinik')
+        $("#editdetail_klinik").val('deletedetail')
+        $("#rowdetail_klinik").val(v.iddetail)
+      }
+    });
+    $('.btn-open-modal-klinik').click()
+  }
+
+  function delete_detail_add_klinik(id) {
+    swal({
+      title: 'Hapus Klinik',
+      text: "Apakah Anda yakin menghapus klinik ini ?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: "Batal",
+      confirmButtonText: 'Ya, Hapus !'
+    }).then((result) => {
+      if (result.value) {
+        $.ajax({
+          success: function (data, textStatus, xhr) {
+            swal(
+              'Berhasil!',
+              'Klinik dihapus',
+              'success'
+            )
+
+            $('#klinik_' + id).remove()
+
+            $.each(arr_detail_add_klinik, function (indexa, valuea) {
+              if (id == valuea.iddetail) {
+                cc = indexa
+              }
+            });
+
+            Array.prototype.remove = function (indexcc) {
+              this.splice(indexcc, 1);
+            }
+
+            arr_detail_add_klinik.remove(cc)
+
+            var s_detail = [];
+
+            arr_detail_add_klinik.map((val, index) => {
+              s_detail.push(val)
+            })
+            arr_detail_add_klinik = s_detail
+            arr_detail_add_klinik_x.detail = s_detail;
+
+            $('#data_klinik').val('')
+            $('#data_klinik').val(JSON.stringify(arr_detail_add_klinik_x))
+          }
+        });
+      }
+    })
+  }
+</script>

@@ -1,0 +1,95 @@
+<script>
+  function actionString(permohonan, isViewOnly, showAlasanDikembalikan) {
+    if (isViewOnly) {
+      return `
+        <td>
+          <button onclick="permohonanCurrentUser(${permohonan.id}, false, ${showAlasanDikembalikan})" type="button" class="btn btn-xs btn-block waves-effect waves-light btn-info">
+            Lihat Detail Data
+          </button>
+        </td>`;
+    }
+
+    return `
+      <td>
+        <button onclick="permohonanCurrentUser(${permohonan.id}, true, ${showAlasanDikembalikan})" type="button" class="btn btn-sm waves-effect waves-light btn-info" style="bottom:10px;">
+          Lihat Detail Data
+        </button>
+        <button onclick="edit_data_permohonan(${permohonan.id})" type="button" class="btn btn-sm waves-effect waves-light btn-primary" style="bottom:10px;">
+          Ubah Permohonan
+        </button>
+        <button onclick="edit_data_apotek(${permohonan.id}, ${permohonan.permohonanNumber})" type="button" class="btn btn-sm waves-effect waves-light btn-secondary" style="bottom:10px;">
+          Ubah Apotek
+        </button>
+        <button onclick="edit_data_rs(${permohonan.id}, ${permohonan.permohonanNumber})" type="button" class="btn btn-sm waves-effect waves-light btn-danger" style="bottom:10px;">
+          Ubah Rumah Sakit
+        </button>
+        <br /><button onclick="cekStatusBilling(${permohonan.id})" type="button" class="btn btn-sm waves-effect waves-light btn-warning">
+          Cek Status Pembayaran
+        </button>
+        <button onclick="ajukan_permohonan(${permohonan.id})" type="button" class="btn btn-sm waves-effect waves-light btn-success">
+          Ajukan Permohonan
+        </button>
+      </td>`;
+  }
+
+  function permohonanFromJson(json, isViewOnly, showAlasanDikembalikan = false) {
+    let resultList = [];
+
+    // window.console.log('JSON:', json);
+
+    json.data.forEach(permohonan => {
+      let item = [];
+
+      item.push(permohonan.permohonanNumber);
+      item.push(permohonan.domain);
+      item.push(permohonan.straNumber);
+      item.push(moment(permohonan.straExpiry).format("YYYY-MM-DD"));
+      item.push(permohonan.pemohonStatusName);
+      item.push(actionString(permohonan, isViewOnly, showAlasanDikembalikan));
+      // window.console.log('Item:', item);
+
+      resultList.push(item);
+    });
+
+    return JSON.parse(JSON.stringify(resultList));
+  }
+
+  function permohonanAjaxRequest(list, modulName) {
+    // var order_name = [];
+
+    // order_name.push('permohonanNumber');
+    // order_name.push('domain');
+    // order_name.push('straNumber');
+    // order_name.push('straExpiry');
+    // order_name.push('statusName');
+    // order_name.push('id');
+
+    let data = {
+      fpage: (parseInt(list.start) + parseInt(list.length)) / parseInt(list.length),
+      frows: list.length,
+      fsearch: list.search['value'],
+      forder: 'lastUpdate',
+      fsort: 'desc',
+      fmodul: modulName,
+      flsearch: 'permohonanNumber,domain,straNumber',
+      ftots: 3
+    };
+
+    return data;
+  }
+
+  $('.modal-close-conf').click(function () {
+    close_modals();
+  })
+
+  function close_modals() {
+    $('.modal-close').click();
+    $('#name').val('')
+    $('#siaNumber').val('')
+    $('#apotekerName').val('')
+    $('#straNumber').val('')
+    $('#sipaNumber').val('')
+    $('#address').val('')
+    $('select[name="provinsiId"]').val(null).trigger("change");
+  }
+</script>
